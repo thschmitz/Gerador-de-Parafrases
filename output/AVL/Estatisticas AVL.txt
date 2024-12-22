@@ -1,0 +1,7 @@
+========  ESTATÍSTICAS AVL ============
+Arq Entrada: Alienista_cap1.txt
+Arq Dicionário: dict_10K.txt
+Numero de Nodos: 10000
+Altura 16
+Rotações: 4622
+Comparações: 31998

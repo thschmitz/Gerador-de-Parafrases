@@ -1,0 +1,7 @@
+========  ESTATÍSTICAS ABP ============
+Arq Entrada: ../TrabalhoFinal/source/Alienista_cap1.txt
+Arq Dicionário: ../TrabalhoFinal/source/dict_40K.txt
+Numero de Nodos: 40916
+Altura: 42
+Rotações: 0
+Comparações: 24029
