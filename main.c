@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../TrabalhoFinal/service/ABP/ABP.h"
+#include "service/ABP/ABP.h"
 
-#define DICIONARIO_FIXO "../TrabalhoFinal/source/dict_40K.txt"
-#define ESTATISTICAS_ABP "../TrabalhoFinal/output/ABP/estatisticas_abp.txt"
+#define DICIONARIO_FIXO "source/dict_10K.txt"
+#define ESTATISTICAS_ABP "output/ABP/estatisticas_abp.txt"
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     int comparacoes = 0;
     FILE *arquivo_entrada = fopen(argv[1], "r");
     char arquivo_saida_path[256];
-    snprintf(arquivo_saida_path, sizeof(arquivo_saida_path), "../TrabalhoFinal/output/%s", argv[2]); // Monta o meu caminho para dentro do output
+    snprintf(arquivo_saida_path, sizeof(arquivo_saida_path), "output/%s", argv[2]); // Monta o meu caminho para dentro do output
 
     if (!arquivo_entrada) {
         perror("Erro ao abrir o arquivo de entrada");
