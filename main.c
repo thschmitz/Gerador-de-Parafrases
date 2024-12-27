@@ -12,17 +12,15 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    int comparacoes = 0;
     FILE *arquivo_entrada = fopen(argv[1], "r");
     char arquivo_saida_path[256];
-    snprintf(arquivo_saida_path, sizeof(arquivo_saida_path), "output/%s", argv[2]); // Monta o meu caminho para dentro do output
+    snprintf(arquivo_saida_path, sizeof(arquivo_saida_path), "output/%s", argv[2]); 
 
     if (!arquivo_entrada) {
         perror("Erro ao abrir o arquivo de entrada");
         return EXIT_FAILURE;
     }
 
-    // Abre o arquivo de saída para a árvore ABP
     FILE *arquivo_saida = fopen(arquivo_saida_path, "w");
     if (!arquivo_saida) {
         perror("Erro ao abrir o arquivo de saída");
@@ -30,12 +28,12 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    NodoA *dicionario = NULL;
+    pNodoA *dicionario = NULL;
     carregar_dicionario(DICIONARIO_FIXO, &dicionario);
 
-    parafrasear(arquivo_entrada, arquivo_saida, dicionario, &comparacoes);
+    parafrasear(arquivo_entrada, arquivo_saida, dicionario);
 
-    salvar_estatisticas_ABP(ESTATISTICAS_ABP, argv[1], DICIONARIO_FIXO, dicionario, comparacoes);
+    salvar_estatisticas_ABP(ESTATISTICAS_ABP, argv[1], DICIONARIO_FIXO, dicionario);
 
     // Libera a memória alocada para a árvore
     liberar_ABP(dicionario);
