@@ -28,11 +28,12 @@ pNodoA* consulta_ABP(pNodoA *raiz, char *chave) {
     while (raiz != NULL) {
         comparacoes++;
         if (!strcmp(raiz->chave, chave)) {
+            comparacoes++;
             return raiz;
-        } else if (strcmp(raiz->chave, chave) > 0) {
-            raiz = raiz->esq;
         } else {
-            raiz = raiz->dir;
+            comparacoes++;
+            if(strcmp(raiz->chave, chave) > 0) raiz = raiz->esq;
+            else raiz = raiz->dir;
         }
     }
     return NULL;
@@ -71,6 +72,7 @@ void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arqui
     fprintf(fp, "Arq Dicionário: %s\n", arquivo_dicionario);
     fprintf(fp, "Numero de Nodos: %d\n", contar_nodos_ABP(raiz));
     fprintf(fp, "Altura: %d\n", altura_ABP(raiz));
+    fprintf(fp, "Rotações: 0\n");
     fprintf(fp, "Comparações: %d\n", comparacoes);
     fclose(fp);
 }
@@ -95,33 +97,25 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
 
     while ((c = fgetc(entrada)) != EOF) {
         if (isspace(c)) {
-            // Preserva o espaço ou quebra de linha no arquivo de saída
             fputc(c, saida);
         } else if (ispunct(c)) {
-            // Ignora pontuações como vírgulas e pontos
             continue;
         } else {
-            // Volta o caractere lido, pois faz parte de uma palavra
             ungetc(c, entrada);
 
-            // Lê a palavra completa
             fscanf(entrada, "%99s", palavra);
 
-            // Remove pontuações no final da palavra, se existirem
             int len = strlen(palavra);
             while (len > 0 && ispunct(palavra[len - 1])) {
                 palavra[--len] = '\0';
             }
 
-            // Converte a palavra para letras minúsculas
             for (int i = 0; palavra[i]; i++) {
                 palavra[i] = tolower((unsigned char)palavra[i]);
             }
 
-            // Consulta o sinônimo na árvore
             pNodoA *sinonimo = consulta_ABP(dicionario, palavra);
 
-            // Escreve o sinônimo ou a palavra original no arquivo de saída
             if (sinonimo) {
                 fprintf(saida, "%s", sinonimo->sinonimo);
             } else {
