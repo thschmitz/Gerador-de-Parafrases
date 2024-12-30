@@ -1,67 +1,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "ABP.h"
 
-// Insere um novo elemento na árvore ABP
-NodoA* inserir_ABP(NodoA *raiz, char *chave) {
+int comparacoes = 0;
+
+pNodoA* inserir_ABP(pNodoA *raiz, char *chave, char *sinonimo) {
     if (raiz == NULL) {
-        NodoA *novo = malloc(sizeof(NodoA));
-        novo->info = strdup(chave);
+        pNodoA *novo = malloc(sizeof(pNodoA));
+        novo->chave = strdup(chave);
+        novo->sinonimo = strdup(sinonimo);
         novo->esq = novo->dir = NULL;
         return novo;
     }
 
-    if (strcmp(chave, raiz->info) < 0) {
-        raiz->esq = inserir_ABP(raiz->esq, chave);
-    } else if (strcmp(chave, raiz->info) > 0) {
-        raiz->dir = inserir_ABP(raiz->dir, chave);
+    int cmp = strcmp(chave, raiz->chave);
+    if (cmp < 0) {
+        raiz->esq = inserir_ABP(raiz->esq, chave, sinonimo);
+    } else if (cmp > 0) {
+        raiz->dir = inserir_ABP(raiz->dir, chave, sinonimo);
     }
-
     return raiz;
 }
 
-// Consulta um elemento na árvore ABP e conta comparações
-NodoA* consulta_ABP(NodoA *raiz, char *chave, int *comparacoes) {
+pNodoA* consulta_ABP(pNodoA *raiz, char *chave) {
     while (raiz != NULL) {
-        (*comparacoes)++;
-        if (strcmp(raiz->info, chave) == 0) {
+        comparacoes++;
+        if (!strcmp(raiz->chave, chave)) {
+            comparacoes++;
             return raiz;
-        } else if (strcmp(chave, raiz->info) < 0) {
-            raiz = raiz->esq;
         } else {
-            raiz = raiz->dir;
+            comparacoes++;
+            if(strcmp(raiz->chave, chave) > 0) raiz = raiz->esq;
+            else raiz = raiz->dir;
         }
     }
     return NULL;
 }
 
-// Libera a memória da árvore ABP
-void liberar_ABP(NodoA *raiz) {
+void liberar_ABP(pNodoA *raiz) {
     if (raiz == NULL) return;
     liberar_ABP(raiz->esq);
     liberar_ABP(raiz->dir);
-    free(raiz->info);
+    free(raiz->chave);
+    free(raiz->sinonimo);
     free(raiz);
 }
 
-// Calcula a altura da árvore ABP
-int altura_ABP(NodoA *raiz) {
+int altura_ABP(pNodoA *raiz) {
     if (raiz == NULL) return 0;
     int altura_esq = altura_ABP(raiz->esq);
     int altura_dir = altura_ABP(raiz->dir);
     return 1 + (altura_esq > altura_dir ? altura_esq : altura_dir);
 }
 
-// Conta o número de nodos na árvore ABP
-int contar_nodos_ABP(NodoA *raiz) {
+int contar_nodos_ABP(pNodoA *raiz) {
     if (raiz == NULL) return 0;
     return 1 + contar_nodos_ABP(raiz->esq) + contar_nodos_ABP(raiz->dir);
 }
 
-
-// Função para salvar estatísticas da ABP em um arquivo
-void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arquivo_entrada, const char *arquivo_dicionario, NodoA *raiz, int comparacoes) {
+void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arquivo_entrada, const char *arquivo_dicionario, pNodoA *raiz) {
     FILE *fp = fopen(arquivo_estatisticas, "w");
     if (!fp) {
         perror("Erro ao abrir o arquivo de estatísticas");
@@ -73,34 +72,55 @@ void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arqui
     fprintf(fp, "Arq Dicionário: %s\n", arquivo_dicionario);
     fprintf(fp, "Numero de Nodos: %d\n", contar_nodos_ABP(raiz));
     fprintf(fp, "Altura: %d\n", altura_ABP(raiz));
-    fprintf(fp, "Rotações: 0\n"); // ABP não utiliza rotações.
+    fprintf(fp, "Rotações: 0\n");
     fprintf(fp, "Comparações: %d\n", comparacoes);
     fclose(fp);
 }
 
-void carregar_dicionario(const char *arquivo, NodoA **raiz) {
+void carregar_dicionario(const char *arquivo, pNodoA **raiz) {
     FILE *fp = fopen(arquivo, "r");
     if (!fp) {
         perror("Erro ao abrir o arquivo do dicionário");
         exit(EXIT_FAILURE);
     }
 
-    char palavra[100];
-    while (fscanf(fp, "%s", palavra) != EOF) {
-        *raiz = inserir_ABP(*raiz, palavra);
+    char chave[100], sinonimo[100];
+    while (fscanf(fp, "%s %s", chave, sinonimo) != EOF) {
+        *raiz = inserir_ABP(*raiz, chave, sinonimo);
     }
     fclose(fp);
 }
 
-void parafrasear(FILE *entrada, FILE *saida, NodoA *dicionario, int *comparacoes) {
+void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
     char palavra[100];
+    int c;
 
-    while (fscanf(entrada, "%s", palavra) != EOF) {
-        NodoA *sinonimo = consulta_ABP(dicionario, palavra, comparacoes);
-        if (sinonimo) {
-            fprintf(saida, "%s ", sinonimo->info);
+    while ((c = fgetc(entrada)) != EOF) {
+        if (isspace(c)) {
+            fputc(c, saida);
+        } else if (ispunct(c)) {
+            continue;
         } else {
-            fprintf(saida, "%s ", palavra);
+            ungetc(c, entrada);
+
+            fscanf(entrada, "%99s", palavra);
+
+            int len = strlen(palavra);
+            while (len > 0 && ispunct(palavra[len - 1])) {
+                palavra[--len] = '\0';
+            }
+
+            for (int i = 0; palavra[i]; i++) {
+                palavra[i] = tolower((unsigned char)palavra[i]);
+            }
+
+            pNodoA *sinonimo = consulta_ABP(dicionario, palavra);
+
+            if (sinonimo) {
+                fprintf(saida, "%s", sinonimo->sinonimo);
+            } else {
+                fprintf(saida, "%s", palavra);
+            }
         }
     }
 }

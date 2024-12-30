@@ -1,21 +1,22 @@
 #ifndef ABP_H
 #define ABP_H
 
-typedef struct NodoA {
-    char *info;
-    struct NodoA *esq, *dir;
-} NodoA;
+typedef struct pNodoA {
+    char *chave;
+    char *sinonimo;
+    struct pNodoA *esq;
+    struct pNodoA *dir;
+} pNodoA;
 
-// Funções da árvore ABP
-NodoA* inserir_ABP(NodoA *raiz, char *chave);
-NodoA* consulta_ABP(NodoA *raiz, char *chave, int *comparacoes);
-void liberar_ABP(NodoA *raiz);
-void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arquivo_entrada, const char *arquivo_dicionario, NodoA *raiz, int comparacoes);
-void carregar_dicionario(const char *arquivo, NodoA **raiz);
-void parafrasear(FILE *entrada, FILE *saida, NodoA *dicionario, int *comparacoes);
 
-// Funções auxiliares
-int altura_ABP(NodoA *raiz);
-int contar_nodos_ABP(NodoA *raiz);
+// Funções públicas
+pNodoA* inserir_ABP(pNodoA *raiz, char *chave, char *sinonimo);
+pNodoA* consulta_ABP(pNodoA *raiz, char *chave);
+void liberar_ABP(pNodoA *raiz);
+int altura_ABP(pNodoA *raiz);
+int contar_nodos_ABP(pNodoA *raiz);
+void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arquivo_entrada, const char *arquivo_dicionario, pNodoA *raiz);
+void carregar_dicionario(const char *arquivo, pNodoA **raiz);
+void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario);
 
 #endif // ABP_H
