@@ -10,6 +10,7 @@
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         fprintf(stderr, "Uso: %s <dicionario.txt> <entrada.txt>\n", argv[0]);
+        fprintf(stderr, "Uso: %s <dicionario.txt> <entrada.txt>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
     FILE *arquivo_entrada = fopen(argv[2], "r");
     if (!arquivo_entrada) {
         perror("Erro ao abrir o arquivo de entrada");
+        fclose(arquivo_dicionario);
         fclose(arquivo_dicionario);
         return EXIT_FAILURE;
     }
