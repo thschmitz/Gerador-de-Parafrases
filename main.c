@@ -10,7 +10,6 @@
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         fprintf(stderr, "Uso: %s <dicionario.txt> <entrada.txt>\n", argv[0]);
-        fprintf(stderr, "Uso: %s <dicionario.txt> <entrada.txt>\n", argv[0]);
         return EXIT_FAILURE;
     }
 

@@ -97,23 +97,29 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
 
     while ((c = fgetc(entrada)) != EOF) {
         if (isspace(c)) {
+            // Preserva espaços no texto
             fputc(c, saida);
-        } else if (ispunct(c)) {
-            continue;
         } else {
             ungetc(c, entrada);
 
+            // Lê uma palavra até encontrar um espaço ou pontuação
             fscanf(entrada, "%99s", palavra);
 
+            char pontuacao = '\0';
             int len = strlen(palavra);
-            while (len > 0 && ispunct(palavra[len - 1])) {
-                palavra[--len] = '\0';
+
+            // Verifica se o último caractere é uma pontuação
+            if (len > 0 && ispunct(palavra[len - 1])) {
+                pontuacao = palavra[len - 1];
+                palavra[--len] = '\0';  // Remove a pontuação temporariamente
             }
 
+            // Converte a palavra para minúscula
             for (int i = 0; palavra[i]; i++) {
                 palavra[i] = tolower((unsigned char)palavra[i]);
             }
 
+            // Procura a palavra no dicionário
             pNodoA *sinonimo = consulta_ABP(dicionario, palavra);
 
             if (sinonimo) {
@@ -121,6 +127,7 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
             } else {
                 fprintf(saida, "%s", palavra);
             }
+
         }
     }
 }

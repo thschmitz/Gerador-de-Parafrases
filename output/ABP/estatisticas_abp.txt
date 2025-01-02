@@ -4,4 +4,4 @@ Arq Dicionário: source/dict_10K.txt
 Numero de Nodos: 10000
 Altura: 30
 Rotações: 0
-Comparações: 40588
+Comparações: 40620
