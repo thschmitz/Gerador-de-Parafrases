@@ -127,7 +127,7 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
             } else {
                 fprintf(saida, "%s", palavra);
             }
-
+            if(pontuacao == '-') putc('-', saida);
         }
     }
 }
