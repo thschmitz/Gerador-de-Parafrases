@@ -31,9 +31,9 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-
+    // Monta os caminhos para os textos parafraseados
     char arquivo_saida_abp_path[256], arquivo_saida_avl_path[256];
-    snprintf(arquivo_saida_abp_path, sizeof(arquivo_saida_abp_path), "output/ABP/%s", "textoParafraseado_ABP");
+    snprintf(arquivo_saida_abp_path, sizeof(arquivo_saida_abp_path), "output/ABP/%s", "textoParafraseado_ABP"); 
     snprintf(arquivo_saida_avl_path, sizeof(arquivo_saida_avl_path), "output/AVL/%s", "textoParafraseado_AVL");
 
     // Abre os arquivos de saída para ABP e AVL

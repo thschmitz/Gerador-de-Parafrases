@@ -27,6 +27,7 @@ pNodoA* inserir_ABP(pNodoA *raiz, char *chave, char *sinonimo) {
 pNodoA* consulta_ABP(pNodoA *raiz, char *chave) {
     while (raiz != NULL) {
         comparacoes++;
+        // Quando os caracteres forem iguais, ele retorna 0
         if (!strcmp(raiz->chave, chave)) {
             comparacoes++;
             return raiz;
@@ -77,6 +78,7 @@ void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arqui
     fclose(fp);
 }
 
+// Le o dicionario e coloca as chaves e os sinônimos na ABP.
 void carregar_dicionario(const char *arquivo, pNodoA **raiz) {
     FILE *fp = fopen(arquivo, "r");
     if (!fp) {
@@ -100,9 +102,13 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
             // Preserva espaços no texto
             fputc(c, saida);
         } else {
+            // O ungetc devolve o caractere ao fluxo para garantir que o fscanf 
+            // leia corretamente desde o início da palavra, evitando múltiplas leituras.
             ungetc(c, entrada);
 
             // Lê uma palavra até encontrar um espaço ou pontuação
+            // O fscanf usa o mesmo ponteiro do arquivo que o fgetc. Assim, quando
+            // terminar a leitura do fscanf, o ponteiro é incrementado.
             fscanf(entrada, "%99s", palavra);
 
             char pontuacao = '\0';
@@ -114,6 +120,9 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
                 palavra[--len] = '\0';  // Remove a pontuação temporariamente
             }
 
+            // Aqui o unsigned char é usado para evitar problemas com caracteres 
+            // acima de 127 ( complemento de 2 ) em ISO-8859, interpretando o caracter como negativo.
+            // Exemplos são caracteres com acento.
             // Converte a palavra para minúscula
             for (int i = 0; palavra[i]; i++) {
                 palavra[i] = tolower((unsigned char)palavra[i]);
@@ -127,6 +136,8 @@ void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
             } else {
                 fprintf(saida, "%s", palavra);
             }
+
+            // Retiro toda e qualquer pontuação, menos o travessão que eu retorno pra posicao original.
             if(pontuacao == '-') putc('-', saida);
         }
     }
