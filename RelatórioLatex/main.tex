@@ -1,0 +1,712 @@
+\documentclass[a4paper, 12pt, english]{article}
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue]{hyperref}
+\usepackage{lipsum}
+\usepackage[portuges]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{subfig}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{minted}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref} % Pacote para links clicáveis
+\usepackage{attachfile} % Pacote para anexar arquivos ao PDF
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{textcomp}
+\usepackage{gensymb}
+\usepackage{float}
+\usepackage{relsize}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xparse}% http://ctan.org/pkg/xparse
+\usepackage{caption}
+
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  breaklines=true
+}
+
+\renewcommand{\lstlistingname}{Código}
+
+\NewDocumentCommand{\myrule}{O{1pt} O{2pt} O{black}}{%
+  \par\nobreak % don't break a page here
+  \kern\the\prevdepth % don't take into account the depth of the preceding line
+  \kern#2 % space before the rule
+  {\color{#3}\hrule height #1 width\hsize} % the rule
+  \kern#2 % space after the rule
+  \nointerlineskip % no additional space after the rule
+}
+\usepackage[section]{placeins}
+
+\usepackage{booktabs}
+\usepackage{colortbl}%
+   \newcommand{\myrowcolour}{\rowcolor[gray]{0.925}}
+   
+\usepackage[obeyspaces]{url}
+
+
+\usepackage{geometry}
+\geometry{
+	paper=a4paper, % Change to letterpaper for US letter
+	inner=2.5cm, % Inner margin
+	outer=2.5cm, % Outer margin
+	bindingoffset=.5cm, % Binding offset
+	top=2cm, % Top margin
+	bottom=2cm, % Bottom margin
+	%showframe, % Uncomment to show how the type block is set on the page
+}
+%*******************************************************************************%
+%************************************START**************************************%
+%*******************************************************************************%
+\begin{document}
+
+%************************************TITLE PAGE**************************************%
+\begin{titlepage}
+\begin{center}
+
+\includegraphics[scale=0.18]{images/logo_ufrgs.png}\\[1cm]
+\vspace{20pt}
+\textbf{}\\[1.5cm]
+
+{\Huge \textbf{ Comparação entre Árvores ABP e AVL para a Geração de Paráfrases}}\\[1.5cm]
+Disciplina de Estrutura de Dados - INF01203 \\[2mm]
+{\Large Relatório do Trabalho Final}\\[20mm]
+
+\textbf{Autores: Thomas Henrique Schmitz - 00588622}\\
+\textbf{e Eduardo Henrique Drumm Menezes - 00588224}\\
+\textbf{Docente: Viviane Pereira Moreira}\\[1cm]
+Universidade Federal do Rio Grande do Sul\\
+Instituto de Informática\\[1cm]
+
+\vfill
+\textbf{Porto Alegre, 10 de janeiro de 2025}\\
+
+\end{center}
+\end{titlepage}
+
+%************************************TABLE OF CONTENTS**************************************%
+
+ %Sumário
+ \newpage
+
+\tableofcontents
+\newpage
+
+\section{Introdução}
+A geração de paráfrases é uma técnica importante em processamento de linguagem natural e possui diversas aplicações, como reformulação de texto, tradução automática e compressão textual. Neste trabalho, utilizamos uma Árvore Binária de Pesquisa (ABP) e a AVL como estruturas de dados para realizar a tarefa de substituição de palavras por sinônimos, permitindo a reformulação eficiente de textos.
+
+Este relatório apresenta uma explicação teórica sobre as ABPs e AVLs, detalhes sobre sua implementação para a tarefa de geração de paráfrases e uma análise de desempenho baseada em um conjunto de experimentos.
+
+\section{Árvore Binária de Pesquisa (ABP)}
+\subsection{Definição}
+Uma Árvore Binária de Pesquisa é uma estrutura de dados hierárquica que organiza seus elementos de forma que:
+\begin{itemize}
+    \item Para cada nó, os elementos na subárvore à esquerda são menores que a chave do nó.
+    \item Os elementos na subárvore à direita são maiores que a chave do nó.
+\end{itemize}
+Essa propriedade permite realizar operações como busca, inserção e remoção em tempo médio de $O(\log n)$ em árvores balanceadas. Isso significa que, no pior caso, todas as operações sobre a ABP consomem tempo proporcional à altura da árvore.
+No caso deste experimento, a árvore binária de pesquisa foi organizada na ordem lexicográfica das palavras, ou seja, a ordem que elas aparecem no dicionário.
+
+\subsection{Operações Fundamentais}
+\begin{itemize}
+    \item \textbf{Busca}: Percorre a árvore comparando a chave alvo com os nós, movendo-se para a subárvore esquerda ou direita, conforme necessário.
+    \item \textbf{Inserção}: Para adicionar novos nodos na ABP, é preciso começar do nó-raiz e descer de forma recursiva, procurando o local certo para inserir o novo nó.
+    \item \textbf{Remoção}: Ao remover um nodo da árvore, é necessário manter as propriedades da árvore, para isso, é necessário pegar o maior elemento da subárvore esquerda, caso ela exista, do nodo a ser removido e substituir no nodo original removido.
+
+\end{itemize}
+
+\subsection{Aplicações}
+As ABPs são amplamente utilizadas em sistemas de busca, compressão de dados e algoritmos que exigem acesso eficiente a pequenos conjuntos de dados. Ela possui a vantagem de não precisar realizar rotações, mas isso pode trazer um menor desempenho em suas operações fundamentais ao comparar com outros modelos de árvore, uma vez que, quando houver dados em larga escala, teremos mais comparações para realizar cada ação.
+
+\newpage
+\subsection{Implementação da Geração de Paráfrases}
+A tarefa de geração de paráfrases consiste em substituir palavras de um texto original por sinônimos encontrados em um dicionário. A implementação utiliza uma ABP para armazenar o dicionário, onde:
+\begin{itemize}
+    \item A chave é a palavra original.
+    \item O valor associado é o sinônimo correspondente.
+\end{itemize}
+
+\subsubsection{Estrutura de Dados}
+Cada nó da árvore armazena:
+\begin{itemize}
+    \item \textbf{Chave:} Palavra do texto original.
+    \item \textbf{Valor:} Palavra sinônima.
+    \item \textbf{Filho Esquerdo e Direito:} Ponteiros para subárvores.
+\end{itemize}
+
+\subsubsection{Funcionamento do Algoritmo}
+O funcionamento do algoritmo para geração de paráfrases é dividido em três etapas principais: carregamento do dicionário, processamento do texto e escrita do texto parafraseado. A seguir, cada etapa é descrita detalhadamente com exemplos de código.
+
+\begin{enumerate}
+    \item \textbf{Carregamento do Dicionário:}
+    \begin{itemize}
+        \item O dicionário é carregado a partir de um arquivo de texto onde cada linha contém uma palavra e seu sinônimo, separados por espaço. Um exemplo do formato do arquivo pode ser visto abaixo:
+        \begin{verbatim}
+palavra1 sinonimo1
+palavra2 sinonimo2
+...
+        \end{verbatim}
+        \item Cada entrada do dicionário é inserida na Árvore Binária de Pesquisa (ABP) utilizando a função \texttt{inserir\_ABP}. A função insere as palavras considerando a ordem lexicográfica:
+        \begin{itemize}
+            \item Palavras que vêm antes no alfabeto são posicionadas à esquerda.
+            \item Palavras que vêm depois no alfabeto são posicionadas à direita.
+        \end{itemize}
+
+\newpage
+
+    O trecho de \autoref{lst:codigoInserirABP} abaixo ilustra a função de inserção na ABP das palavras do dicionário:
+    \begin{lstlisting}[
+      label={lst:codigoInserirABP},       % Rótulo para referência
+      caption={Código usado para inserir na árvore ABP}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+pNodoA* inserir_ABP(pNodoA *raiz, char *chave, char *sinonimo) {
+    if (raiz == NULL) {
+        pNodoA *novo = malloc(sizeof(pNodoA));
+        novo->chave = strdup(chave);
+        novo->sinonimo = strdup(sinonimo);
+        novo->esq = novo->dir = NULL;
+        return novo;
+    }
+    if (strcmp(chave, raiz->chave) < 0) {
+        raiz->esq = inserir_ABP(raiz->esq, chave, sinonimo);
+    } else if (strcmp(chave, raiz->chave) > 0) {
+        raiz->dir = inserir_ABP(raiz->dir, chave, sinonimo);
+    }
+    return raiz;
+}
+
+    \end{lstlisting}
+    
+    \end{itemize}
+
+    \item \textbf{Processamento do Texto:}
+    O texto de entrada é processado palavra por palavra. Cada palavra é normalizada (removendo pontuações e convertendo para minúsculas) e buscada na ABP. Se um sinônimo for encontrado, ele substitui a palavra original; caso contrário, a palavra original é mantida. O \autoref{lst:codigoParafrasearABP} abaixo exemplifica a lógica de processamento:
+
+    \begin{lstlisting}[
+      label={lst:codigoParafrasearABP},       % Rótulo para referência
+      caption={Código usado para parafrasear utilizando árvore ABP}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+void parafrasear(FILE *entrada, FILE *saida, pNodoA *dicionario) {
+    char palavra[100];
+    int c;
+
+    while ((c = fgetc(entrada)) != EOF) {
+        if (isspace(c)) {
+            // Preserva espaços no texto
+            fputc(c, saida);
+        } else {
+            ungetc(c, entrada);
+            // Lê uma palavra até encontrar um espaço ou pontuação
+            fscanf(entrada, "%99s", palavra);
+            char pontuacao = '\0';
+            int len = strlen(palavra);
+            
+            // Verifica se o último caractere é uma pontuação
+            if (len > 0 && ispunct(palavra[len - 1])) {
+                pontuacao = palavra[len - 1];
+                palavra[--len] = '\0';  // Remove a pontuação temporariamente
+            }
+
+            // Converte a palavra para minúscula
+            for (int i = 0; palavra[i]; i++) {
+                palavra[i] = tolower((unsigned char)palavra[i]);
+            }
+
+            // Procura a palavra no dicionário
+            pNodoA *sinonimo = consulta_ABP(dicionario, palavra);
+
+            if (sinonimo) {
+                fprintf(saida, "%s", sinonimo->sinonimo);
+            } else {
+                fprintf(saida, "%s", palavra);
+            }
+            if(pontuacao == '-') putc('-', saida);
+        }
+    }
+}
+\end{lstlisting}
+
+
+A normalização de palavras assegura que variações de maiúsculas e minúsculas não afetem a busca. Além disso, algumas pontuações específicas, como travessões, são preservadas no texto de saída. A função \texttt{consultaABP} é conhecida e foi trazida dos requisitos do trabalho. O \autoref{lst:codigoConsultaABP} abaixo consulta a ABP:
+
+    \begin{lstlisting}[
+      label={lst:codigoConsultaABP},       % Rótulo para referência
+      caption={Código usado para consultar árvore ABP}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+pNodoA* consulta_ABP(pNodoA *raiz, char *chave) {
+    while (raiz != NULL) {
+        comparacoes++;
+        if (!strcmp(raiz->chave, chave)) {
+            comparacoes++;
+            return raiz;
+        } else {
+            comparacoes++;
+            if(strcmp(raiz->chave, chave) > 0) raiz = raiz->esq;
+            else raiz = raiz->dir;
+        }
+    }
+    return NULL;
+}
+
+\end{lstlisting}
+
+\newpage
+    \item \textbf{Escrita do Texto Parafraseado:}
+    Após processar cada palavra, o texto reformulado é salvo em um arquivo de saída. A função \texttt{fprintf} é utilizada para escrever tanto palavras substituídas quanto palavras originais, preservando espaços e formatação do texto.
+
+    O \autoref{lst:codigoSalvarEstatisticaABP} também assegura que as estatísticas da ABP (como número de nós e altura) sejam registradas para análise de desempenho:
+    \begin{lstlisting}[
+      label={lst:codigoSalvarEstatisticaABP},       % Rótulo para referência
+      caption={Código usado para salvar estatísticas da árvore ABP}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+
+    void salvar_estatisticas_ABP(const char *arquivo_estatisticas, const char *arquivo_entrada, const char *arquivo_dicionario, pNodoA *raiz) {
+        FILE *fp = fopen(arquivo_estatisticas, "w");
+        if (!fp) {
+            perror("Erro ao abrir o arquivo de estatisticas");
+            return;
+        }
+    
+        fprintf(fp, "========  ESTATISTICAS ABP ============\n");
+        fprintf(fp, "Arq Entrada: %s\n", arquivo_entrada);
+        fprintf(fp, "Arq Dicionario: %s\n", arquivo_dicionario);
+        fprintf(fp, "Numero de Nodos: %d\n", contar_nodos_ABP(raiz));
+        fprintf(fp, "Altura: %d\n", altura_ABP(raiz));
+        fprintf(fp, "Rotacoes: 0\n");
+        fprintf(fp, "Comparacoes: %d\n", comparacoes);
+        fclose(fp);
+    }
+\end{lstlisting}
+\end{enumerate}
+
+Essa abordagem modular e eficiente permite que o algoritmo seja aplicado em diferentes contextos de geração de paráfrases, garantindo flexibilidade e escalabilidade. 
+\newpage
+
+\newpage
+
+\section{Árvore AVL}
+\subsection{Definição}
+A Árvore AVL é uma árvore binária de busca balanceada, onde a diferença de altura entre as subárvores esquerda e direita de qualquer nó é no máximo 1. Esse balanceamento é mantido por meio de rotações (simples ou duplas) realizadas durante as operações de inserção e remoção.
+
+A propriedade de balanceamento garante que as operações fundamentais, como busca, inserção e remoção, tenham complexidade $O(\log n)$ mesmo no pior caso. Isso torna a Árvore AVL uma estrutura eficiente para armazenar e acessar grandes conjuntos de dados.
+
+\subsection{Operações Fundamentais}
+As operações fundamentais em uma Árvore AVL incluem:
+\begin{itemize}
+    \item \textbf{Busca}: Semelhante à ABP, percorre a árvore comparando a chave alvo com os nós.
+    \item \textbf{Inserção}: Insere um novo nó e realiza rotações para manter o balanceamento.
+    \item \textbf{Remoção}: Remove um nó e ajusta a árvore para preservar o balanceamento.
+    \item \textbf{Rotações}: São realizadas para corrigir desequilíbrios após inserções ou remoções. Podem ser rotações simples (à esquerda ou à direita) ou duplas (esquerda-direita ou direita-esquerda).
+\end{itemize}
+
+\subsection{Aplicações}
+As Árvores AVL são amplamente utilizadas em sistemas que exigem acesso eficiente a dados, como:
+\begin{itemize}
+    \item Bancos de dados: Para indexação e recuperação rápida de informações.
+    \item Sistemas de arquivos: Para organizar diretórios e arquivos.
+    \item Algoritmos de compressão: Para armazenar tabelas de frequência em estruturas balanceadas.
+    \item Processamento de linguagem natural: Para tarefas como geração de paráfrases, onde o balanceamento da árvore melhora o desempenho em grandes conjuntos de dados.
+\end{itemize}
+
+\newpage
+
+\subsection{Implementação da Geração de Paráfrases}
+A tarefa de geração de paráfrases consiste em substituir palavras de um texto original por sinônimos encontrados em um dicionário. A implementação utiliza uma Árvore AVL para armazenar o dicionário, onde:
+\begin{itemize}
+\item A chave é a palavra original.
+\item O valor associado é o sinônimo correspondente.
+\end{itemize}
+
+\subsubsection{Estrutura de Dados}
+Cada nó da Árvore AVL armazena:
+\begin{itemize}
+\item \textbf{Chave:} Palavra do texto original.
+\item \textbf{Valor:} Palavra sinônima.
+\item \textbf{Filho Esquerdo e Direito:} Ponteiros para subárvores.
+\item \textbf{Altura:} Altura do nó na árvore, usada para calcular o fator de balanceamento.
+\end{itemize}
+Além disso, a Árvore AVL realiza rotações automáticas durante as inserções para garantir que a diferença entre as alturas das subárvores esquerda e direita seja no máximo 1. Isso assegura que a complexidade das operações seja mantida em $O(\log n)$, mesmo no pior caso.
+\subsubsection{Funcionamento do Algoritmo}
+O funcionamento do algoritmo para geração de paráfrases utilizando AVL é dividido em três etapas principais: carregamento do dicionário, processamento do texto e escrita do texto parafraseado. A seguir, cada etapa é descrita detalhadamente com exemplos de código.
+\begin{enumerate}
+\item \textbf{Carregamento do Dicionário:}
+\begin{itemize}
+\item O dicionário é carregado a partir de um arquivo de texto onde cada linha contém uma palavra e seu sinônimo, separados por espaço. Um exemplo do formato do arquivo pode ser visto abaixo:
+\begin{verbatim}
+palavra1 sinonimo1
+palavra2 sinonimo2
+...
+\end{verbatim}
+\item Cada entrada do dicionário é inserida na Árvore AVL utilizando a função \texttt{inserirAVL}. 
+
+Durante a inserção, rotações são realizadas automaticamente sempre que necessário para manter o balanceamento da árvore. A lógica de inserção segue a ordem lexicográfica:
+\begin{itemize}
+\item Palavras que vêm antes no alfabeto são posicionadas à esquerda.
+\item Palavras que vêm depois no alfabeto são posicionadas à direita.
+\end{itemize}
+\newpage
+
+O trecho de \autoref{lst:codigoInserirAVL} abaixo ilustra a função de inserção na Árvore AVL das palavras do dicionário:
+
+    \begin{lstlisting}[
+      label={lst:codigoInserirAVL},       % Rótulo para referência
+      caption={Código usado para inserir dados na árvore AVL}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+NodoAVL* inserir_AVL(NodoAVL *raiz, char *chave, char *sinonimo) {
+    if (raiz == NULL) {
+        NodoAVL *novo = malloc(sizeof(NodoAVL));
+        strcpy(novo->palavra, chave);
+        strcpy(novo->sinonimo, sinonimo);
+        novo->esq = novo->dir = NULL;
+        novo->altura = 1;
+        return novo;
+    }
+    if (strcmp(chave, raiz->palavra) < 0) {
+        raiz->esq = inserir_AVL(raiz->esq, chave, sinonimo);
+    } else if (strcmp(chave, raiz->palavra) > 0) {
+        raiz->dir = inserir_AVL(raiz->dir, chave, sinonimo);
+    }
+
+    // Atualiza altura e realiza balanceamento
+    raiz->altura = 1 + max(altura(raiz->esq), altura(raiz->dir));
+    int balance = fator_balanceamento(raiz);
+
+    // Realiza rotacoes conforme necessario
+    if (balance > 1 && strcmp(chave, raiz->esq->palavra) < 0)
+        return rotacao_direita(raiz);
+    if (balance < -1 && strcmp(chave, raiz->dir->palavra) > 0)
+        return rotacao_esquerda(raiz);
+    if (balance > 1 && strcmp(chave, raiz->esq->palavra) > 0) {
+        raiz->esq = rotacao_esquerda(raiz->esq);
+        return rotacao_direita(raiz);
+    }
+    if (balance < -1 && strcmp(chave, raiz->dir->palavra) < 0) {
+        raiz->dir = rotacao_direita(raiz->dir);
+        return rotacao_esquerda(raiz);
+    }
+
+    return raiz;
+}
+\end{lstlisting}
+
+\end{itemize}
+
+\newpage
+\item \textbf{Processamento do Texto:}
+O texto de entrada é processado palavra por palavra. Cada palavra é normalizada (removendo pontuações e convertendo para minúsculas) e buscada na Árvore AVL. Se um sinônimo for encontrado, ele substitui a palavra original; caso contrário, a palavra original é mantida. 
+
+O \autoref{lst:codigoParafrasearAVL} abaixo exemplifica a lógica de processamento:
+
+
+    \begin{lstlisting}[
+      label={lst:codigoParafrasearAVL},       % Rótulo para referência
+      caption={Código usado para parafrasear na árvore AVL}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+void parafrasear_AVL(FILE *entrada, FILE *saida, NodoAVL *dicionario, 
+                    int *comparacoes) {
+    char palavra[100];
+    int c;
+
+    while ((c = fgetc(entrada)) != EOF) {
+        if (isspace(c)) {
+            fputc(c, saida); // Preserva espacos no texto
+        } else if (ispunct(c)) {
+            continue; // Ignora pontuacoes
+        } else {
+            ungetc(c, entrada);
+            fscanf(entrada, "%99s", palavra);
+
+            for (int i = 0; palavra[i]; i++) {
+                palavra[i] = tolower((unsigned char)palavra[i]);
+            }
+
+            // Busca o sinonimo
+            NodoAVL *sinonimo = consulta_AVL(dicionario, palavra, 
+                                            comparacoes);
+            if (sinonimo) {
+                fprintf(saida, "%s", sinonimo->sinonimo);
+            } else {
+                fprintf(saida, "%s", palavra);
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+A normalização de palavras assegura que variações de maiúsculas e minúsculas não afetem a busca. Além disso, algumas pontuações específicas são removidas no texto de saída.
+
+\item \textbf{Escrita do Texto Parafraseado:}
+Após processar cada palavra, o texto reformulado é salvo em um arquivo de saída. A função \texttt{fprintf} é utilizada para escrever tanto palavras substituídas quanto palavras originais, preservando espaços e formatação do texto.
+
+\newpage
+
+O \autoref{lst:codigoSalvaEstatisticaAVL} também assegura que as estatísticas da Árvore AVL (como número de nós e altura) sejam registradas para análise de desempenho.
+Abaixo o \autoref{lst:codigoSalvaEstatisticaAVL}
+
+    \begin{lstlisting}[
+      label={lst:codigoSalvaEstatisticaAVL},       % Rótulo para referência
+      caption={Código usado para salvar estatística da árvore AVL}, % Legenda
+      captionpos=b               % Coloca a legenda abaixo do código
+    ]
+void salvar_estatisticas_AVL(const char *arquivo_estatisticas,
+                             const char *arquivo_entrada,
+                             const char *arquivo_dicionario,
+                             NodoAVL *raiz,
+                             int comparacoes) {
+    FILE *fp = fopen(arquivo_estatisticas, "w");
+    if (!fp) {
+        perror("Erro ao abrir o arquivo de estatisticas");
+        return;
+    }
+
+    fprintf(fp, "========  ESTATISTICAS AVL ============\n");
+    fprintf(fp, "Arq Entrada: %s\n", arquivo_entrada);
+    fprintf(fp, "Arq Dicionario: %s\n", arquivo_dicionario);
+    fprintf(fp, "Numero de Nos: %d\n", contar_nodos_AVL(raiz));
+    fprintf(fp, "Altura da Arvore: %d\n", altura_AVL(raiz));
+    fprintf(fp, "Numero de Rotacoes: %d\n", contar_rotacoes_AVL());
+    fprintf(fp, "Numero de Comparacoes: %d\n", comparacoes);
+
+    fclose(fp);
+}
+\end{lstlisting}
+
+\end{enumerate}
+Essa abordagem modular permite que o algoritmo seja aplicado em diferentes contextos de geração de paráfrases com alta eficiência devido ao balanceamento automático da Árvore AVL.
+
+\newpage
+
+\section{Desempenho}
+\subsection{Análise Teórica}
+As operações de busca e inserção na ABP possuem complexidade $O(h)$, onde $h$ é a altura da árvore. Para uma árvore balanceada, $h \approx \log n$, sendo $n$ o número de elementos. Assim, o desempenho da geração de paráfrases depende da eficiência da busca na árvore. Note também que por ser uma ABP, não é realizado qualquer rotação na árvore para aumentar seu desempenho, seja na busca, seja na inserção.
+
+\subsection{Resultados Experimentais}
+Nas próximas subseções, irá ser discutido o processo de paráfrase utilizando dois dicionários de tamanhos distintos para os dois tipos de árvores, juntamente com seus resultados.
+
+\subsubsection{Dicionário com 10 mil palavras por meio da árvore ABP}
+
+Os experimentos foram realizados utilizando um texto de entrada, como exemplo, o capítulo 1 do livro O Alienista, de Machado de Assis, e um dicionário com 10 mil palavras.
+
+\begin{itemize}
+    \item \textbf{Número de Comparações:} 40.620 comparações foram realizadas durante a busca.
+    \item \textbf{Número de Nós na Árvore:} 10.000.
+    \item \textbf{Altura da Árvore:} 30.
+    \item \textbf{Rotações:} 0 rotações foram realizadas.
+\end{itemize}
+
+\subsubsection{Dicionário com 40 mil palavras por meio da árvore ABP}
+
+Os experimentos foram realizados utilizando um texto de entrada, como exemplo, o capítulo 1 do livro O Alienista, de Machado de Assis, e um dicionário com 40 mil palavras.
+
+\begin{itemize}
+    \item \textbf{Número de Comparações:} 46.194 comparações foram realizadas durante a busca.
+    \item \textbf{Número de Nós na Árvore:} 40.915.
+    \item \textbf{Altura da Árvore:} 34.
+    \item \textbf{Rotações:} 0 rotações foram realizadas.
+\end{itemize}
+
+\newpage
+
+\subsubsection{Dicionário com 10 mil palavras por meio da árvore AVL}
+Os experimentos foram realizados utilizando um texto de entrada, como exemplo, o capítulo 1 do livro O Alienista, de Machado de Assis, e um dicionário com 10 mil palavras.
+
+\begin{itemize}
+    \item \textbf{Número de Comparações:} 16.055 comparações foram realizadas durante a busca.
+    \item \textbf{Número de Nós na Árvore:} 10.000.
+    \item \textbf{Altura da Árvore:} 16 (graças ao balanceamento).
+    \item \textbf{Número de Rotações:} 6.979 rotações realizadas durante as inserções.
+\end{itemize}
+
+\subsubsection{Dicionário com 40 mil palavras por meio da árvore AVL}
+Os experimentos foram realizados utilizando um texto de entrada, como exemplo, o capítulo 1 do livro O Alienista, de Machado de Assis, e um dicionário com 40 mil palavras.
+
+\begin{itemize}
+    \item \textbf{Número de Comparações:} 19.148 comparações foram realizadas durante a busca.
+    \item \textbf{Número de Nós na Árvore:} 40.915.
+    \item \textbf{Altura da Árvore:} 18 (graças ao balanceamento).
+    \item \textbf{Número de Rotações:} 28.598 rotações realizadas durante as inserções.
+\end{itemize}
+
+\subsubsection{Arquivos Utilizados}
+Os arquivos utilizados para o experimento podem ser baixados através dos links abaixo:
+\begin{itemize}
+    \item \textbf{Arquivos de teste:} \href{https://moodle.ufrgs.br/pluginfile.php/7039297/course/section/4279465/arqs_teste.zip}{Baixar Aqui}
+\end{itemize}
+
+\newpage
+\subsection{Discussão Comparativa entre ABP e AVL}
+Os resultados mostram que o balanceamento automático da Árvore AVL reduz significativamente o número de comparações durante as buscas, especialmente em conjuntos grandes.
+
+A tabela abaixo apresenta uma comparação direta entre ABP e AVL com base nos experimentos realizados com o dicionário de 10 mil palavras:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\rowcolor[gray]{0.9} Métrica & ABP & AVL \\ \hline
+Número de Nós & 10.000 & 10.000 \\ \hline
+Altura da Árvore & 30 & 16 \\ \hline
+Número de Comparações & 40.620 & 16.055 \\ \hline
+Número de Rotações & 0 & 6.979 \\ \hline
+\end{tabular}
+\caption{Comparação entre ABP e AVL na geração de paráfrases para o dicionário de 10 mil palavras.}
+\label{tab:comparacao_abp_avl}
+\end{table}
+
+Os resultados mostram que:
+\begin{itemize}
+    \item A altura significativamente menor da Árvore AVL garante buscas mais rápidas, reduzindo o número total de comparações.
+    \item O tempo total para processar o texto foi menor na AVL devido ao seu balanceamento eficiente.
+    \item A ABP não realiza rotações, mas sua altura maior impacta negativamente no desempenho em conjuntos grandes.
+    \item A AVL apresenta um custo adicional nas inserções devido às rotações realizadas para manter o balanceamento.
+\end{itemize}
+
+A tabela abaixo apresenta uma comparação direta entre ABP e AVL com base nos experimentos realizados com o dicionário de 40 mil palavras.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\rowcolor[gray]{0.9} Métrica & ABP & AVL \\ \hline
+Número de Nós & 40.915 & 40.915 \\ \hline
+Altura da Árvore & 34 & 18 \\ \hline
+Número de Comparações & 46.194 & 19.148 \\ \hline
+Número de Rotações & 0 & 28.598 \\ \hline
+\end{tabular}
+\caption{Comparação entre ABP e AVL para o dicionário de 40 mil palavras.}
+\label{tab:comparacao_abp_avl_40k}
+\end{table}
+
+
+Com base nos dados apresentados na tabela acima, podemos tirar as seguintes conclusões sobre o desempenho das árvores ABP e AVL para o dicionário de 40 mil palavras:
+
+\begin{itemize}
+    \item \textbf{Altura da Árvore:} 
+    A altura da ABP é significativamente maior (34) em comparação com a AVL (18). Isso reflete o impacto da falta de balanceamento na ABP, que cresce de forma desbalanceada dependendo da ordem das inserções. Na AVL, o balanceamento automático mantém uma altura menor, mesmo com um grande número de nós.
+
+    \item \textbf{Número de Comparações:} 
+    A AVL realiza significativamente menos comparações (19.148) do que a ABP (46.194). Isso é consequência direta de sua altura menor, permitindo buscas mais rápidas e eficientes.
+
+    \item \textbf{Número de Rotações:} 
+    A ABP não realiza rotações, o que simplifica a lógica de inserção. No entanto, isso resulta em uma estrutura menos eficiente. A AVL realiza 28.598 rotações para balancear a árvore durante as inserções, mas isso melhora muito o desempenho nas buscas.
+
+\end{itemize}
+
+\subsubsection{Conclusões Gerais}
+\begin{itemize}
+    \item \textbf{Desempenho de Busca:} 
+    A AVL supera a ABP em desempenho de busca devido à sua menor altura. Isso é especialmente vantajoso para conjuntos grandes, como o dicionário de 40 mil palavras.
+
+    \item \textbf{Custo das Inserções:} 
+    O custo adicional nas inserções causado pelas rotações da AVL é justificado pelo ganho expressivo de eficiência nas buscas subsequentes. Para aplicações com alta frequência de buscas e inserções moderadas, a AVL é a melhor escolha.
+
+    \item \textbf{Uso Prático:} 
+    A ABP pode ser suficiente para pequenos conjuntos de dados ou cenários onde a ordem de inserção já produz uma árvore razoavelmente balanceada. No entanto, para grandes volumes de dados, como o dicionário de 40 mil palavras, a AVL é mais adequada devido ao seu desempenho superior em buscas e tempo total de execução.
+\end{itemize}
+
+Esses resultados reforçam que a AVL é a estrutura ideal para aplicações que exigem alta eficiência, especialmente em conjuntos grandes e operações frequentes de busca.
+
+
+Com base nesses resultados, concluímos que a Árvore AVL é mais adequada para aplicações que exigem alto desempenho em conjuntos grandes e operações frequentes de busca.
+
+
+\subsection{Discussão dos Resultados}
+Como discutido anteriormente, o fato de a Árvore Binária de Pesquisa (ABP) não realizar rotações melhora seu desempenho em casos de conjuntos de dados pequenos. Entretanto, à medida que o volume de dados aumenta, o número de comparações cresce consideravelmente, o que sugere a necessidade de reconsiderar o uso da ABP em favor de uma árvore balanceada, como a AVL, para conjuntos de dados maiores.
+
+\newpage
+\section{Referências}
+
+\begin{thebibliography}{9}
+
+\bibitem{cormen2009}
+Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. (2009). 
+\textit{Introduction to Algorithms} (3ª ed.). MIT Press. 
+\\
+Este livro fornece uma base teórica sólida sobre estruturas de dados, incluindo árvores binárias de pesquisa e algoritmos de busca.
+
+\bibitem{sedgewick2011}
+Sedgewick, R., \& Wayne, K. (2011). 
+\textit{Algorithms} (4ª ed.). Addison-Wesley. 
+\\
+Explica detalhadamente estruturas de dados como árvores binárias, AVL e suas aplicações práticas.
+
+\bibitem{goodrich2004}
+Goodrich, M. T., Tamassia, R., \& Mount, D. M. (2004). 
+\textit{Data Structures and Algorithms in C++}. Wiley. 
+\\
+Excelente para compreender implementações práticas de árvores binárias e balanceadas em C/C++.
+
+\bibitem{geeksforgeeks}
+GeeksforGeeks. \textit{Binary Search Tree Data Structure}.
+\\
+Disponível em: \url{https://www.geeksforgeeks.org/binary-search-tree-data-structure/}. Acesso em: 9 de janeiro de 2025. 
+\\
+Contém explicações práticas e implementações de árvores binárias de busca, além de exemplos em C.
+
+\bibitem{programiz}
+Programiz. \textit{Binary Search Tree}.
+\\
+Disponível em: \url{https://www.programiz.com/dsa/binary-search-tree}. Acesso em: 9 de janeiro de 2025.
+\\
+Um guia simples para entender os fundamentos de árvores binárias de busca.
+
+\bibitem{stackoverflow}
+Stack Overflow. \textit{Perguntas e Respostas sobre Estruturas de Dados}.
+\\
+Disponível em: \url{https://stackoverflow.com/}. Acesso em: 9 de janeiro de 2025.
+\\
+Fórum utilizado para resolver dúvidas específicas sobre a implementação de algoritmos e estruturas de dados.
+
+\bibitem{cormen2009}
+Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. (2009). 
+\textit{Introduction to Algorithms} (3ª ed.). MIT Press. 
+\\
+Este livro fornece uma base teórica sólida sobre estruturas de dados, incluindo árvores binárias de pesquisa e algoritmos de busca.
+
+\bibitem{weiss1997}
+Weiss, M. A. (1997). 
+\textit{Data Structures and Algorithm Analysis in C}. Addison-Wesley.
+\\
+Apresenta uma análise detalhada de estruturas de dados balanceadas como AVL e suas vantagens em relação às ABPs.
+
+\bibitem{knuth1998}
+Knuth, D. E. (1998). 
+\textit{The Art of Computer Programming: Sorting and Searching} (2ª ed.). Addison-Wesley.
+\\
+Um clássico que aborda algoritmos de busca e estruturas como árvores AVL com profundidade teórica.
+
+
+\bibitem{kerridge2012}
+Kerridge, J., \& Kerridge M. (2012). 
+\textit{Data Structures and Algorithms in C}. Springer.
+\\
+Apresenta implementações detalhadas sobre árvores balanceadas como AVL e suas vantagens práticas.
+
+
+\end{thebibliography}
+
+ 
+
+
+
+\noindent
+\end{document}
+
+
