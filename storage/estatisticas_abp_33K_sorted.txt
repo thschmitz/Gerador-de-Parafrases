@@ -1,0 +1,7 @@
+========  ESTATÍSTICAS ABP ============
+Arq Entrada: source/pata_da_gazelaCap1.txt
+Arq Dicionário: source/dict_33K_sorted.txt
+Numero de Nodos: 33261
+Altura: 18632
+Rotações: 0
+Comparações: 18330670

@@ -1,0 +1,7 @@
+======== ESTATÍSTICAS AVL ========
+Arquivo Entrada: source/pata_da_gazelaCap1.txt
+Arquivo Dicionário: source/dict_33K_sorted.txt
+Número de Nós: 33261
+Altura da Árvore: 16
+Número de Rotações: 46526
+Número de Comparações: 17189
