@@ -1,7 +1,7 @@
 ======== ESTATÍSTICAS AVL ========
 Arquivo Entrada: source/Alienista_cap1.txt
-Arquivo Dicionário: source/dict_10K.txt
-Número de Nós: 10000
-Altura da Árvore: 16
-Número de Rotações: 6979
-Número de Comparações: 16055
+Arquivo Dicionário: source/dict_40K.txt
+Número de Nós: 40915
+Altura da Árvore: 18
+Número de Rotações: 28598
+Número de Comparações: 19148
