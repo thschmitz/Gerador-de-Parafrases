@@ -1,7 +1,7 @@
 ========  ESTATÍSTICAS ABP ============
-Arq Entrada: source/Alienista_cap1.txt
-Arq Dicionário: source/dict_40K.txt
-Numero de Nodos: 40915
-Altura: 34
+Arq Entrada: source/pata_da_gazelaCap1.txt
+Arq Dicionário: source/dict_10K.txt
+Numero de Nodos: 10000
+Altura: 30
 Rotações: 0
-Comparações: 46194
+Comparações: 37634

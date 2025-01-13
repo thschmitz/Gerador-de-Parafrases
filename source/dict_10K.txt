@@ -9997,4 +9997,4 @@ couteiro	montaraz
 angustiado	confrangido
 empenado	enfeitado
 refrativo	refringente
-balizar	sinalar
+balizar	sinalar 
